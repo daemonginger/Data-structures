@@ -16,8 +16,7 @@ struct ver
 	ver (){}
 };
 
-// const int MAX = 1e6,SMAX = 1e3,INF = 2*1e9+1;
-const int MAX = 9,SMAX = 3,INF = 2*1e9+1;
+const int MAX = 1e6,SMAX = 1e3,INF = 2*1e9+1;
 ver t[MAX+1];
 
 void dfs(int x,int h,int anc)
