@@ -46,7 +46,7 @@ int get_lca(int x,int y)
 		if(t[x].anc[i] != t[y].anc[i])
 		{
 			x = t[x].anc[i];
-			y = t[y].anc[y];
+			y = t[y].anc[i];
 		}
 	
 	// At this moment, x and y are the two sons of the LCA that lead to the vertices of the query.
