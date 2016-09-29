@@ -17,7 +17,7 @@ Method with sparse tables: O(log(n)) time queries with O(nlog(n)) precomputing a
 Various types of online updates and queries on arrays in logarithmic time, with O(log(n)) precomputing and space required.
 Queries of min,sum,number of distinc elements... Range/Point queries and updates, sometimes the lazy propagation trick is needed to get what you want !
 
-### BIT (Bit Indexed Tree or Fentwick Tree)
+### BIT (Bit Indexed Tree or Fenwick Tree)
 
 A nice improvement of Segment Trees using clever bit tricks for very fast implementation. But sometimes it won't be enough : segment trees can do more !
 
