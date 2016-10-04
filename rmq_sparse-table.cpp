@@ -14,18 +14,13 @@ int t[MAX][LMAX],lg[MAX+1];
 // r exclu.
 int get_rmq(int l,int r)
 {
-	int k = lg[r-l];
+	int k = 31 - __builtin_clz(r-l);
 	return min(t[l][k],t[r - (1 << k)][k]);
 }
 
 int main()
 {
 	ios_base::sync_with_stdio(0);
-	
-	for(int i=0;i<=LMAX;i++)
-		for(int j = 1 << i;j < 1 << (i+1);j++)
-			if(j <= MAX)
-				lg[j] = i;
 	
 	int n;
 	cin >> n;
