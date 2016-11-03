@@ -9,19 +9,19 @@
 
 using namespace std;
 
-const ll M = 1e9 + 7;
 const int MAX = 1e5,N = 26;
 ll p[MAX],h[MAX],n;
 string s;
 
-inline ll geth(ll x,ll y)
+inline ll geth(ll x,ll y) // return the hash of the substring starting at x with lenght y
 {
-	return (h[x+y] - (x > 0 ? h[x-1] : 0) + M)%M;
+	return h[x] - h[x+y]*p[y];
 }
 
 inline bool sort1(const int& x,const int& y)
 {
-	ll l = 0,r = min(n-x,n-y);
+	ll l = 0,r = min(n-x,n-y)+1;
+	
 	while(r-l>1)
 	{
 		ll mid = (r+l)/2;
@@ -31,19 +31,23 @@ inline bool sort1(const int& x,const int& y)
 			r = mid;
 	}
 	
+	if(l == n-x)
+		return 1;
+	else if(l == n-y)
+		return 0;
 	return s[x+l] < s[y+l];
 }
 
 vector<int> f()
 {
 	n = s.size();
-	h[0] = s[0] - 'a';
-	for(int i=1;i<n+1;i++)
-		h[i] = (h[i-1] + (s[i] - 'a')*p[i])%M;
+	h[n] = 0;
+	for (int i=n-1;i>=0;--i)
+		h[i] = h[i+1]*26 + s[i] - 'a';
 	
-	vector<int> ans;
+	vector<int> ans(n);
 	for(int i=0;i<n;i++)
-		ans.pb(i);
+		ans[i] = i;
 	
 	s += (char)('a' - 1);
 	sort(ans.begin(),ans.end(),sort1);
@@ -56,7 +60,7 @@ int main()
    
 	p[0] = 1;
 	for(int i=1;i<MAX;i++)
-		p[i] = (p[i-1]*N)%M;
+		p[i] = p[i-1]*N;
 	
 	vector<int> v = f();
 	

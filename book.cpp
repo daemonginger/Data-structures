@@ -6,8 +6,8 @@
 #define ld long double
 #define pb push_back
 #define mp make_pair
-#define PI 3.14159265359
 #define endl '\n'
+#define PI 3.14159265359
 #define MOD1 1000000033
 #define MOD2 99999971
 #define MOD3 99999959
@@ -28,12 +28,12 @@ int main()
 
 // Dijkstra's //
 
-const int INF = 2147483647;
+const int INF = 2e9+10;
 const int MAX = 5005;
 int D[MAX], N; // Keeps minimum distance to each node
 vector<pair<int,int>> E[MAX]; // Adjacency list
  
-void dijkstra()
+ void dijkstra(int *D,vector<pair<int,int>>& E)
 {
     for(int i = 1; i <= N; i++) D[i] = INF;
     D[1] = 0;
@@ -205,7 +205,7 @@ bool KMP(string pattern, string target)
 
 // Note : this O(n*m) implementation was enough too pass SWERC 2014 problem D (n <= 20000 and m <= 20000)... Don't use a faster matching algorithm.
 
-bool dfs(int v) // v is in X, it reaturns true if and only if there is an augmenting path starting from v
+bool dfs(int v) // v is in X, it returns true if and only if there is an augmenting path starting from v
 {
 	if(marque[v])
 		return false;

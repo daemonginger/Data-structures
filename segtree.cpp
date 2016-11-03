@@ -6,7 +6,7 @@ using namespace std;
 
 const int MAX = 1e6+1;
 int n;
-ll t[2*MAX];
+ll t[2*MAX]; // Segtree size must be at least 2*n.
 
 /////// Point updates and range queries ///////
 
