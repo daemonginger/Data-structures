@@ -9,11 +9,11 @@
 
 using namespace std;
 
-const int MAX = 1e5,N = 26;
+const int MAX = 1e5+1,N = 26;
 ll p[MAX],h[MAX],n;
 string s;
 
-inline ll geth(ll x,ll y) // return the hash of the substring starting at x with lenght y
+inline ll geth(ll x,ll y) // returns the hash of the substring starting at x with lenght y
 {
 	return h[x] - h[x+y]*p[y];
 }
@@ -21,7 +21,6 @@ inline ll geth(ll x,ll y) // return the hash of the substring starting at x with
 inline bool sort1(const int& x,const int& y)
 {
 	ll l = 0,r = min(n-x,n-y)+1;
-	
 	while(r-l>1)
 	{
 		ll mid = (r+l)/2;
@@ -30,17 +29,15 @@ inline bool sort1(const int& x,const int& y)
 		else
 			r = mid;
 	}
-	
-	if(l == n-x)
-		return 1;
-	else if(l == n-y)
-		return 0;
 	return s[x+l] < s[y+l];
 }
 
 vector<int> f()
 {
 	n = s.size();
+	p[0] = 1;
+	for(int i=1;i<MAX;i++)
+		p[i] = p[i-1]*N;
 	h[n] = 0;
 	for (int i=n-1;i>=0;--i)
 		h[i] = h[i+1]*26 + s[i] - 'a';
@@ -57,10 +54,6 @@ vector<int> f()
 int main()
 {
    ios_base::sync_with_stdio(0);
-   
-	p[0] = 1;
-	for(int i=1;i<MAX;i++)
-		p[i] = p[i-1]*N;
 	
 	vector<int> v = f();
 	

@@ -7,7 +7,7 @@ typedef long long ll;
 #define MOD2 99999971
 #define MOD3 99999959
 
-                                       //////// SEGTREES ////////
+         //////// SEGTREES ////////
 
 const int MAX = 1e6+1;
 int n;
@@ -110,7 +110,87 @@ int query(int l, int r) { // get value on interval [l, r) r exclu, 0-based
 
 //////////////
 
-                                       /////// GRAPHS ///////
+///////// RANGE MINIMUM QUERY (REQUÊTES DE MIN EN O(1) SUR INTERVALLE DE TABLEAU STATIQUE)
+
+const int MAX = 1e6,LMAX = 21;
+int t[MAX][LMAX],lg[MAX+1];
+
+// r exclu.
+int get_rmq(int l,int r)
+{
+	int k = 31 - __builtin_clz(r-l);
+	return min(t[l][k],t[r - (1 << k)][k]);
+}
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	
+	int n;
+	cin >> n;
+	for(int i=0;i<n;i++)
+		cin >> t[i][0];
+	
+	for(int j=1;j<LMAX;j++)
+		for(int i=0;i<MAX;i++)
+		{
+			int x = i + (1 << j);
+			if(x < MAX)
+				t[i][j] = min(t[i][j-1],t[i + (1 << (j-1))][j-1]);
+		}
+		
+		return 0;
+}
+
+/////////
+
+                 /////// GRAPHS ///////
+                 
+//// BELLMAN-FORD TESTED ON FR-IOI ////
+
+const ll INF = 2e17;
+const int MAX = 1e3+1;
+int n,m,x,y;
+ll d[MAX],w;
+vector<pair<int,ll>> t[MAX];
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	cin >> n >> m;
+	
+	for(int i=0;i<m;i++)
+	{
+		cin >> x >> y >> w;
+		t[x].pb({y,w});
+	}
+	
+	// IN THIS CODE, SOURCE IS 1 AND DESTINATION IS n, vertices are numbered from 1 to n.
+	
+	for(int i=1;i<=n;i++)
+		d[i] = INF;
+	d[1] = 0;
+	
+	for(int i=0;i<n;i++)
+		for(int j=1;j<=n;j++)
+			for(auto p : t[j])
+				d[p.first] = min(d[p.first],d[j] + p.second);
+			
+	for(int j=1;j<=n;j++)
+		for(auto p : t[j])
+			if(d[j] + p.second < d[p.first])
+			{
+				// CYCLE ABSORBANT
+				cout << "ERREUR" << endl;
+				return 0;
+			}
+					
+	cout << d[n] << endl;
+				
+	return 0;
+}
+
+////////
 
 // STRONGLY CONNECTED COMPONENTS (TARJAN) //
 
@@ -261,6 +341,49 @@ int main() {
 
 //////////////
 
+///// EULER TOUR TESTED /////
+
+const int MAX = 1e3+1;
+set<pair<int,int>> s;
+vector<int> t[MAX];
+int n,m,x,y;
+
+void f(int x)
+{
+	for(int y : t[x])
+		if(s.find({min(x,y),max(x,y)}) == s.end())
+		{
+			s.insert({min(x,y),max(x,y)});
+			f(y);
+		}
+		// PUSH X TO SOME VECTOR IN ORDER TO KEEP THE ANSWER.
+		printf("%d ",x);
+}
+
+int main()
+{
+	scanf("%d %d",&n,&m);
+	
+	while(m--)
+	{
+		scanf("%d %d",&x,&y);
+		t[x].pb(y);
+		t[y].pb(x);
+	}
+	for(int i=1;i<=n;i++)
+		if(t[i].size()%2)
+		{
+			// THERE'S NO EULER TOUR.
+			printf("-1\n");
+			return 0;
+		}
+		f(1);
+	printf("\n");
+	return 0;
+}
+
+////////////
+
 /////// MAXIMUM FLOW (DINIC O(N^2*M)) TESTED///////
 
 const int MAXN = ...;
@@ -385,6 +508,117 @@ for (int i=1; i<=n; ++i) {
 vector<int> ans (n+1);
 for (int j=1; j<=m; ++j)
 	ans[p[j]] = j;
+
+////// STRING PROCESSING //////
+
+////// SUFFIX ARRAY (nlog(n)^2 using hashes) //////
+
+const int MAX = 1e5+1,N = 26;
+ll p[MAX],h[MAX],n;
+string s;
+
+inline ll geth(ll x,ll y) // returns the hash of the substring starting at x with lenght y
+{
+	return h[x] - h[x+y]*p[y];
+}
+
+inline int lcp(int x,int y) // returns size of longest common prefixes of suffixes starting at x and y. O(log(n))
+{
+	int l = 0,r = min(n-x,n-y)+1;
+	while(r-l > 1)
+	{
+		int mid = (l+r)/2;
+		if(geth(x,mid) == geth(y,mid))
+			l = mid;
+		else
+			r = mid;
+	}
+	return l;
+}
+
+inline bool sort1(const int& x,const int& y)
+{
+	int l = lcp(x,y);
+	return s[x+l] < s[y+l];
+}
+
+vector<int> f() //// returns the indices of sorted suffixes
+{
+	n = s.size();
+	p[0] = 1;
+	for(int i=1;i<MAX;i++)
+		p[i] = p[i-1]*N;
+	h[n] = 0;
+	vector<int> ans(n);
+	for (int i=n-1;i>=0;--i)
+		h[i] = h[i+1]*26 + s[i] - 'a',ans[i] = i;
+	
+	s += (char)('a' - 1);
+	stable_sort(ans.begin(),ans.end(),sort1);
+	return ans;
+}
+
+//////////
+
+///// AHO-CORASIC /////
+
+struct vertex {
+	int next[K];
+	bool leaf;
+	int p;
+	char pch;
+	int link;
+	int go[K];
+};
+
+vertex t[NMAX+1];
+int sz;
+
+void init() {
+	t[0].p = t[0].link = -1;
+	memset (t[0].next, 255, sizeof t[0].next);
+	memset (t[0].go, 255, sizeof t[0].go);
+	sz = 1;
+}
+
+void add_string (const string & s) {
+	int v = 0;
+	for (size_t i=0; i<s.length(); ++i) {
+		char c = s[i]-'a';
+		if (t[v].next[c] == -1) {
+			memset (t[sz].next, 255, sizeof t[sz].next);
+			memset (t[sz].go, 255, sizeof t[sz].go);
+			t[sz].link = -1;
+			t[sz].p = v;
+			t[sz].pch = c;
+			t[v].next[c] = sz++;
+		}
+		v = t[v].next[c];
+	}
+	t[v].leaf = true;
+}
+
+int go (int v, char c);
+
+int get_link (int v) {
+	if (t[v].link == -1)
+		if (v == 0 || t[v].p == 0)
+			t[v].link = 0;
+		else
+			t[v].link = go (get_link (t[v].p), t[v].pch);
+		return t[v].link;
+}
+
+int go (int v, char c) {
+	if (t[v].go[c] == -1)
+		if (t[v].next[c] != -1)
+			t[v].go[c] = t[v].next[c];
+		else
+			t[v].go[c] = v==0 ? 0 : go (get_link (v), c);
+		return t[v].go[c];
+}
+
+///////////////
 
 ///////////
 
@@ -635,6 +869,64 @@ c = x2^2 + y2^2 + r1^2 - r^2
 You can then use the line-circle formula.
 /////////////
 
+///// 2 NEAREST POINTS O(nlog(n)) /////
+
+struct pt {
+	int x, y, id;
+};
+
+inline bool cmp_x (const pt & a, const pt & b) {
+	return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+inline bool cmp_y (const pt & a, const pt & b) {
+	return a.y < b.y;
+}
+
+pt a[MAXN];
+
+double mindist;
+int ansa, ansb;
+
+inline void upd_ans (const pt & a, const pt & b) {
+	double dist = sqrt ((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + .0);
+	if (dist < mindist)
+		mindist = dist,  ansa = a.id,  ansb = b.id;
+}
+
+void rec (int l, int r) {
+	if (r - l <= 3) {
+		for (int i=l; i<=r; ++i)
+			for (int j=i+1; j<=r; ++j)
+				upd_ans (a[i], a[j]);
+			sort (a+l, a+r+1, &cmp_y);
+		return;
+	}
+	
+	int m = (l + r) >> 1;
+	int midx = a[m].x;
+	rec (l, m),  rec (m+1, r);
+	static pt t[MAXN];
+	merge (a+l, a+m+1, a+m+1, a+r+1, t, &cmp_y);
+	copy (t, t+r-l+1, a+l);
+	
+	int tsz = 0;
+	for (int i=l; i<=r; ++i)
+		if (abs (a[i].x - midx) < mindist) {
+			for (int j=tsz-1; j>=0 && a[i].y - t[j].y < mindist; --j)
+				upd_ans (a[i], t[j]);
+			t[tsz++] = a[i];
+		}
+}
+
+// IN THE MAIN :
+
+sort (a, a+n, &cmp_x);
+mindist = 1E20;
+rec (0, n-1);
+
+////////
+
 /////// RANDOM ///////
 
 // Union-find (bmerry style)//
@@ -792,3 +1084,51 @@ int gauss (vector < vector<double> > a, vector<double> & ans) {
 }
 
 ////////////
+
+////// LCA O(log(n)) queries, O(nlog(n)) preprocessing //////
+
+const int MAX = ...,LMAX = ...; // LMAX should be at least 31 - __builtin_clz(MAX+1)
+int h[MAX],anc[MAX][LMAX];
+
+// in this function, replace !x by "x is the root of the tree"
+int f(int x) {return h[x] || !x ? h[x] : h[x] = f(anc[x][0])+1;}
+
+int get_lca(int x,int y)
+{
+	if(h[x] < h[y])
+		swap(x,y);
+	for(int i=31-__builtin_clz(h[x]);i>=0;i--)
+		if(h[x] - (1 << i) >= h[y])
+			x = anc[x][i];
+	if(x == y)
+		return x;
+	for(int i=31-__builtin_clz(h[x]);i>=0;i--)
+		if(anc[x][i] != anc[y][i])
+		{
+			x = anc[x][i];
+			y = anc[y][i];
+		}
+	// At this moment, x and y are the two sons of the LCA that lead to the vertices of the query.
+	// It can be useful to get them in some problems.
+	return anc[x][0];
+}
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	
+	int n;
+	cin >> n;
+	// this code is one-based and 0 embodies the root. anc[i][0] is the father of i (ancestor of order 0).
+	for(int i=1;i<=n;i++)
+		scanf("%d",&anc[i][0]);
+	anc[0][0] = 0 // here it's useless, in practice you should remplace it by anc[root][0] = root
+	for(int j=1;j<LMAX;j++)
+		for(int i=1;i<=n;i++)
+			anc[i][j] = anc[anc[i][j-1]][j-1];
+	for(int i=1;i<=n;i++)
+		f(i);
+	return 0;
+}
+
+/////////////
